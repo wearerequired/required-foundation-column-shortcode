@@ -164,6 +164,9 @@ class REQ_Column_Shortcode {
      */
     public function do_shortcode( $attr, $content = null ) {
 
+        /* remove <p> tags around rows */
+        $content = preg_replace('#^<\/p>|<p>$#', '', $content);
+
         /* If there's no content, just return back what we got. */
         if ( is_null( $content ) )
             return $content;
