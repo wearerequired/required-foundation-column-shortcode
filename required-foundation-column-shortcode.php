@@ -3,12 +3,12 @@
  * Plugin Name: r+ Columns Shortcode
  * Plugin URI: http://themes.required.ch/
  * Description: A [column] shortcode plugin for the required+ Foundation parent theme and child themes, based on <a href="http://themehybrid.com/plugins/grid-columns">GridColumns by Justin Tadlock</a>.
- * Version: 0.1.2
+ * Version: 1.1.0-wip
  * Author: required+ Team
  * Author URI: http://required.ch
  *
  * @package   required+ Foundation
- * @version   0.1.2
+ * @version   1.1.0-wip
  * @author    Silvan Hagen <silvan@required.ch>
  * @copyright Copyright (c) 2012, Silvan Hagen
  * @link      http://themes.required.ch/theme-features/shortcodes/
@@ -77,40 +77,6 @@ class REQ_Column_Shortcode {
     }
 
     /**
-     * Convert int into a word for our column classes
-     *
-     * @since  0.1.0
-     * @access protected
-     * @param  int $int
-     * @return string $word
-     */
-    protected function convert_int_to_word( $int ) {
-
-        // Make sure it's an integer
-        absint( $int );
-
-        switch( $int ) {
-
-            case 1:     $word = "one"; break;
-            case 2:     $word = "two"; break;
-            case 3:     $word = "three"; break;
-            case 4:     $word = "four"; break;
-            case 5:     $word = "five"; break;
-            case 6:     $word = "six"; break;
-            case 7:     $word = "seven"; break;
-            case 8:     $word = "eight"; break;
-            case 9:     $word = "nine"; break;
-            case 10:    $word = "ten"; break;
-            case 11:    $word = "eleven"; break;
-            case 12:    $word = "twelve"; break;
-            case 0:
-            default:
-                        $word = "zero"; break;
-        }
-        return $word;
-    }
-
-    /**
      * Convert word to int for legacy support of old colmun shortcodes
      *
      * @since  0.1.0
@@ -137,7 +103,6 @@ class REQ_Column_Shortcode {
             case "zero":
             default:
                                 $int = 0; break;
-
         }
         return $int;
     }
@@ -177,11 +142,16 @@ class REQ_Column_Shortcode {
         $defaults = apply_filters(
             'req_column_defaults',
             array(
-                'columns'  => 1,
+                'span'  => 1,
                 'offset'  => 0,
                 'class' => ''
             )
         );
+
+        /* Legacy support for the old columns attr */
+        if ( array_key_exists('columns', $attr) ) {
+            $attr['span'] = $attr['columns'];
+        }
 
         /* Parse the arguments. */
         $attr = shortcode_atts( $defaults, $attr );
@@ -190,23 +160,23 @@ class REQ_Column_Shortcode {
         $attr = apply_filters( 'req_column_args', $attr );
 
         /* Legacy support for old column shortcode */
-        if ( !is_numeric( $attr['columns'] ) )
-            $attr['columns'] = $this->convert_word_to_int( $attr['columns'] );
+        if ( !is_numeric( $attr['span'] ) )
+            $attr['span'] = $this->convert_word_to_int( $attr['span'] );
 
         /* Columns cannot be greater than the grid. */
-        $attr['columns'] = ( $this->grid >= $attr['columns'] ) ? absint( $attr['columns'] ) : 3;
+        $attr['span'] = ( $this->grid >= $attr['span'] ) ? absint( $attr['span'] ) : 3;
 
         /* The offset argument should always be less than the grid. */
         $attr['offset'] = ( $this->grid > $attr['offset'] ) ? absint( $attr['offset'] ) : 0;
 
         /* Add to the total $columns. */
-        $this->columns = $this->columns + $attr['columns'] + $attr['offset'];
+        $this->columns = $this->columns + $attr['span'] + $attr['offset'];
 
         /* Column classes. */
         $column_classes[] = 'columns';
-        $column_classes[] = $this->convert_int_to_word( $attr['columns'] );
+        $column_classes[] = "large-{$attr['span']}";
         if ( $attr['offset'] !== 0 ) // Offset is only necessary if it's not 0
-            $column_classes[] = "offset-by-{$this->convert_int_to_word( $attr['offset'] )}";
+            $column_classes[] = "large-offset-{$attr['offset']}";
 
         /* Add user-input custom class(es). */
         if ( !empty( $attr['class'] ) ) {
