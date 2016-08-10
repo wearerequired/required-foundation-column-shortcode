@@ -1,0 +1,14 @@
+
+{
+	"name":        "wearerequired/required-foundation-column-shortcode",
+	"description": "A Shortcode Plugin for the required+ Foundation WordPress parent theme",
+	"type":        "wordpress-plugin",
+	"authors":     [
+		{
+			"name":     "required+",
+			"email":    "support@required.ch",
+			"homepage": "http://required.ch"
+		}
+	],
+	"require":     {}
+}
